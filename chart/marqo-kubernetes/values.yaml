@@ -1,0 +1,42 @@
+marqo:
+  image:
+    registry: docker.io
+    repo: marqoai/marqo
+    tag: 2.0.0-gcp
+  replicas: 1
+  memory: "8G"
+  storage: "20Gi"
+  gpu_enabled: false
+
+vespa:
+  image:
+    registry: docker.io
+    repo: vespaengine/vespa
+    tag: 8.279.6
+  configServer:
+    replicas: 3
+    storage:
+      var: "10Gi"
+      logs: "10Gi"
+      workspace: "10Gi"
+    memory:
+      requests: "4G"
+  contentServer:
+    redundancy: 2
+    replicas: 2 # must be divisible by the redundancy number above
+    storage: "200Gi"
+    memory:
+      requests: "4G"
+  adminServer:
+    replicas: 1
+    memory:
+      requests: "4G"
+  feedServer:
+   replicas: 1
+   memory:
+     requests: "4G"
+  queryServer:
+    replicas: 1
+    memory:
+      requests: "4G"
+

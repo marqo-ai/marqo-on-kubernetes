@@ -1,0 +1,93 @@
+# Copyright Vespa.ai. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vespa-configserver
+spec:
+  replicas: {{ int .Values.vespa.configServer.replicas }}
+  selector:
+    matchLabels:
+      app: vespa-configserver
+      name: vespa-internal
+  serviceName: vespa-internal
+  template:
+    metadata:
+      labels:
+        app: vespa-configserver
+        name: vespa-internal
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: {{ .Values.cloudProviderMatcher }}
+                operator: In
+                values:
+                - configserver
+      initContainers:
+      - name: chown-var
+        securityContext:
+          runAsUser: 0
+        image: busybox
+        command: ["sh", "-c", "chown -R 1000 /opt/vespa/var"]
+        volumeMounts:
+          - name: vespa-var
+            mountPath: /opt/vespa/var
+      - name: chown-logs
+        securityContext:
+          runAsUser: 0
+        image: busybox
+        command: ["sh", "-c", "chown -R 1000 /opt/vespa/logs"]
+        volumeMounts:
+          - name: vespa-logs
+            mountPath: /opt/vespa/logs
+      - name: init-sysctl
+        image: busybox
+        imagePullPolicy: Always
+        command: ["sysctl", "-w", "vm.max_map_count=262144"]
+        securityContext:
+          privileged: true
+      containers:
+      - name: vespa-configserver
+        image: "{{ .Values.vespa.image.registry }}/{{ .Values.vespa.image.repo }}:{{ .Values.vespa.image.tag }}"
+        args: ["configserver,services"]
+        imagePullPolicy: Always
+        securityContext:
+          runAsUser: 1000
+        volumeMounts:
+        - name: vespa-var
+          mountPath: /opt/vespa/var
+        - name: vespa-logs
+          mountPath: /opt/vespa/logs
+        - name: vespa-workspace
+          mountPath: /workspace
+        envFrom:
+        - configMapRef:
+            name: vespa-config
+        resources:
+          requests:
+            memory: {{ .Values.vespa.configServer.memory.requests }}
+  volumeClaimTemplates:
+  - metadata:
+      name: vespa-var
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.vespa.configServer.storage.var }}
+  - metadata:
+      name: vespa-logs
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.vespa.configServer.storage.logs }}
+  - metadata:
+      name: vespa-workspace
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.vespa.configServer.storage.workspace }}

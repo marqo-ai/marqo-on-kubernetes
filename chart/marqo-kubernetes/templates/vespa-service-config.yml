@@ -1,0 +1,15 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: vespa-configserver-service
+  labels:
+    app: vespa
+spec:
+  selector:
+    app: vespa-configserver
+  ports:
+  - name: api
+    port: 19071
+    targetPort: 19071

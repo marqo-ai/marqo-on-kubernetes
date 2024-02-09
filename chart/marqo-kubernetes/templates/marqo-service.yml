@@ -1,0 +1,16 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: marqo
+  labels:
+    app: marqo
+spec:
+  type: LoadBalancer # Reachable from the internet
+  selector:
+    app: marqo
+  ports:
+    - name: api
+      port: 8882
+      targetPort: 8882
