@@ -14,10 +14,9 @@ This guide provides instructions on how to deploy Marqo on Azure AKS using Kuber
 ## Notes
 Before executing the setup script, ensure your Azure subscription has enough capacity for the following requirements:
 
-- vCPUs: Verify the quota for the required number of vCPUs based on the node size and count you plan to use. Default setup requires 10 vCPU of type Standard_D2s_v3.
+- vCPUs: Verify the quota for vCPUs based on the node size and count you plan to use. Default setup requires 9 vCPU of type Standard_D2s_v3.
 - Persistent Disk SSD: At least 240 GB required; adjust based on your setup.
-- IP Addresses: Ensure a quota for the necessary number of IP addresses.
-- If using GPU nodes, ensure your subscription supports the desired Azure VM sizes with GPU capabilities.
+- If using GPU nodes, ensure your subscription supports the desired Azure VM sizes with GPU capabilities, recommended GPU instance is Standard_NC4as_T4_v3.
 
 ## Deployment Steps
 
@@ -40,7 +39,7 @@ Before executing the setup script, ensure your Azure subscription has enough cap
 
    - **APP_INSTANCE_NAME**: Name your application instance.
    - **CLUSTER**: Define your Kubernetes cluster name.
-   - **LOCATION**: Specify your preferred Azure region.
+   - **LOCATION**: Specify your preferred Azure region such as `eastus`.
    - **RESOURCE_GROUP**: Set the name for the new or existing resource group.
 
    Run the script:
@@ -78,7 +77,9 @@ Before executing the setup script, ensure your Azure subscription has enough cap
 
 ## Additional Configuration
 
-- **GPU Nodes:** If you plan to use GPU nodes, ensure the node pool is created with the appropriate VM size for GPU capabilities.
+- **GPU Nodes:** If you plan to use GPU nodes, uncomment the relevant section in the `setup.sh` script before running it. This will create a node pool with GPU capabilities.
+Also in values.yaml , set `gpu_enabled` to `true`.
+
 - **Custom Configurations:** Modify the Helm chart values or the `setup.sh` script as needed for custom configurations.
 
 ## Cleanup
