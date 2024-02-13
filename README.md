@@ -16,8 +16,6 @@ For more information on Marqo, see the Marqo [official website](https://www.marq
 This solution uses Vespa as the vector repository. For more information visit [official documentation](https://docs.marqo.ai/).
 
 
-To continue writing the README for the Marqo project, focusing on guiding users through installing Marqo on GCP and Azure, you could structure it as follows:
-
 ## Getting Started
 
 To deploy Marqo on managed cloud services like Google Cloud Platform (GCP) and Azure, follow the step-by-step guides provided in the Installation files for each cloud provider.
