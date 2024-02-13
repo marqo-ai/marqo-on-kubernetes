@@ -1,0 +1,11 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vespa-config
+data:
+  VESPA_CONFIGSERVERS: "{{- $relnamespace := .Release.Namespace -}}{{- range $i, $e := until (int .Values.vespa.configServer.replicas) -}}
+    {{- if $i }},{{- end -}}
+    vespa-configserver-{{ $i }}.vespa-internal.{{ $relnamespace }}.svc.cluster.local
+  {{- end }}"

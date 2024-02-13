@@ -1,0 +1,11 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: marqo-config
+data:
+  VESPA_CONFIG_URL: "http://vespa-configserver-0.vespa-internal.{{ .Release.Namespace }}.svc.cluster.local:19071"
+  VESPA_QUERY_URL: "http://vespa-query-0.vespa-internal.{{ .Release.Namespace }}.svc.cluster.local:8080"
+  VESPA_DOCUMENT_URL: "http://vespa-feed-0.vespa-internal.{{ .Release.Namespace }}.svc.cluster.local:8080"
+  MARQO_MODELS_TO_PRELOAD: '["hf/e5-small"]'
+  MARQO_ENABLE_THROTTLING: "FALSE"

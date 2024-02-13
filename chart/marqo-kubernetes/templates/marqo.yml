@@ -1,0 +1,142 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: marqo
+  labels:
+    name: marqo
+    app: marqo
+spec:
+  replicas: {{ int .Values.marqo.replicas }}
+  selector:
+    matchLabels:
+      app: marqo
+      name: marqo
+  serviceName: marqo
+  template:
+    metadata:
+      labels:
+        app: marqo
+        name: marqo
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: {{ .Values.cloudProviderMatcher }}
+                operator: In
+                values:
+                - marqonodes
+      initContainers:
+      - name: package-deployer
+        image: busybox
+        command:
+        - /bin/sh
+        - -c
+        args:
+        - |
+         echo "Checking Vespa config server status..."
+         while true
+         do
+           URL="http://vespa-configserver-0.vespa-internal.{{ .Release.Namespace }}.svc.cluster.local:19071/state/v1/health"
+           echo "$URL"
+           RESPONSE=$(wget -qO- "$URL" || true)
+           echo "$RESPONSE"
+           if echo "$RESPONSE" | grep -q "\"up\""
+           then
+             echo "Response contains \"up\", proceeding with package deployment"
+             break
+           else
+             echo "Response does not contain \"up\", waiting 10 seconds and retrying"
+           fi
+           sleep 10
+         done
+         echo "Vespa config server online."
+         echo "Setting up Vespa"
+         mkdir package
+         cd package
+         mkdir schemas
+         echo "Creating hosts.xml"
+         echo "<hosts>{{- $relnamespace := .Release.Namespace -}}{{- range $i, $e := until (int .Values.vespa.configServer.replicas) -}}<host name='vespa-configserver-{{ $i }}.vespa-internal.{{ $relnamespace }}.svc.cluster.local'><alias>config{{ $i }}</alias></host>{{- end }}
+         {{- range $i, $e := until (int .Values.vespa.adminServer.replicas) -}}<host name='vespa-admin-{{ $i }}.vespa-internal.{{ $relnamespace }}.svc.cluster.local'><alias>admin{{ $i }}</alias></host>{{- end }}
+         {{- range $i, $e := until (int .Values.vespa.feedServer.replicas) -}}<host name='vespa-feed-{{ $i }}.vespa-internal.{{ $relnamespace }}.svc.cluster.local'><alias>feed{{ $i }}</alias></host>{{- end }}
+         {{- range $i, $e := until (int .Values.vespa.queryServer.replicas) -}}<host name='vespa-query-{{ $i }}.vespa-internal.{{ $relnamespace }}.svc.cluster.local'><alias>query{{ $i }}</alias></host>{{- end }}
+         {{- range $i, $e := until (int .Values.vespa.contentServer.replicas) -}}<host name='vespa-content-{{ $i }}.vespa-internal.{{ $relnamespace }}.svc.cluster.local'><alias>content{{ $i }}</alias></host>{{- end }}</hosts>" > hosts.xml
+         cat hosts.xml
+         echo "Creating services.xml"
+         echo "<services version=\"1.0\"><admin version=\"2.0\"><configservers>{{- range $i, $e := until (int .Values.vespa.configServer.replicas) -}}<configserver hostalias=\"config{{ $i }}\" />{{- end }}</configservers><cluster-controllers>{{- range $i, $e := until (int .Values.vespa.configServer.replicas) -}}<cluster-controller hostalias=\"config{{ $i }}\" />{{- end }}</cluster-controllers><slobroks>{{- range $i, $e := until (int .Values.vespa.configServer.replicas) -}}<slobrok hostalias=\"config{{ $i }}\" />{{- end }}</slobroks>{{- range $i, $e := until (int .Values.vespa.adminServer.replicas) -}}<adminserver hostalias=\"admin{{ $i }}\" />{{- end }}</admin><container id=\"feed\" version=\"1.0\"><document-api /><document-processing /><nodes><jvm gc-options=\"-XX:+UseParallelGC -XX:NewRatio=1 -XX:+PrintGC\" options=\"-XX:+PrintCommandLineFlags\" allocated-memory=\"50%\" />{{- range $i, $e := until (int .Values.vespa.feedServer.replicas) -}}<node hostalias=\"feed{{ $i }}\" />{{- end }}</nodes></container><container id=\"query\" version=\"1.0\"><search /><nodes>{{- range $i, $e := until (int .Values.vespa.queryServer.replicas) -}}<node hostalias=\"query{{ $i }}\" />{{- end }}</nodes></container><content id=\"content_default\" version=\"1.0\"><redundancy>{{ (int .Values.vespa.contentServer.redundancy) }}</redundancy><documents><document type=\"marqo_settings\" mode=\"index\" /><document-processing cluster=\"feed\" /></documents><group><distribution partitions=\"{{- range $i, $e := until (sub .Values.vespa.contentServer.redundancy 1 |int) -}}1|{{- end }}*\" />{{- range $i, $e := until (int .Values.vespa.contentServer.redundancy) -}}<group name=\"group{{ $i }}\" distribution-key=\"{{ $i }}\">{{- range $j, $f := until (div $.Values.vespa.contentServer.replicas $.Values.vespa.contentServer.redundancy | int) -}}<node hostalias=\"content{{ (add (div (mul $i $.Values.vespa.contentServer.replicas) $.Values.vespa.contentServer.redundancy) $j) }}\" distribution-key=\"{{ (add (div (mul $i $.Values.vespa.contentServer.replicas) $.Values.vespa.contentServer.redundancy) $j) }}\" />{{- end }}</group>{{- end }}</group></content></services>" > services.xml
+         cat services.xml
+         echo "Creating schemas/marqo_settings.sd";
+         echo "schema marqo_settings { document marqo_settings { field id type string { indexing: attribute | summary } field settings type string { indexing: summary } } }" > schemas/marqo_settings.sd
+         cat schemas/marqo_settings.sd
+         echo "Zipping configs..."
+         tar -czvf schema.tar.gz schemas/marqo_settings.sd hosts.xml services.xml
+         echo "Sending config..."
+         printf "POST /application/v2/tenant/default/prepareandactivate HTTP/1.0\nHost: vespa-configserver-0.vespa-internal.{{ .Release.Namespace }}.svc.cluster.local\nContent-Type: application/x-gzip\nContent-Length: " > headers.txt
+         printf $(cat schema.tar.gz | wc -c) >> headers.txt
+         printf "\n\n" >> headers.txt
+         cat headers.txt
+         cat schema.tar.gz
+         cat headers.txt schema.tar.gz | nc -i 3 "vespa-configserver-0.vespa-internal.{{ .Release.Namespace }}.svc.cluster.local" 19071
+         echo "Config sent..."
+         sleep 10
+         echo "Checking convergence..."
+         while true
+         do
+           URL="http://vespa-configserver-0.vespa-internal.{{ .Release.Namespace }}.svc.cluster.local:19071/application/v2/tenant/default/application/default/environment/prod/region/default/instance/default/serviceconverge"
+           echo "$URL"
+           RESPONSE=$(wget -qO- "$URL" || true)
+           echo "$RESPONSE"
+           if echo "$RESPONSE" | grep -q "true"
+           then
+             echo "Response contains true, Vespa has converged"
+             break
+           else
+             echo "Response does not contain true, waiting 10 seconds and retrying"
+           fi
+           sleep 10
+         done
+         echo "Vespa server converged."
+         sleep 10
+      containers:
+        - name: marqo
+          image: "{{ .Values.marqo.image.registry }}/{{ .Values.marqo.image.repo }}:{{ .Values.marqo.image.tag }}"
+          args:
+            - "name=marqo1"
+            - "privileged"
+            - "p=8882:8882"
+            - "add-host=host.docker.internal:host-gateway"
+            {{ if .Values.marqo.gpu_enabled }}
+            - "gpus all"
+            {{ end }}
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: marqo-config
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          resources:
+            requests:
+              {{ if .Values.marqo.gpu_enabled }}
+              nvidia.com/gpu: 1
+              {{ end }}
+              memory: {{ .Values.marqo.memory }}
+              cpu: 1
+            {{ if .Values.marqo.gpu_enabled }}
+            limits:
+              nvidia.com/gpu: 1
+            {{ end }}
+          env:
+          - name: LD_LIBRARY_PATH
+            value: /usr/local/nvidia/lib64
+  volumeClaimTemplates:
+    - metadata:
+        name: marqo-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: {{ .Values.marqo.storage }}

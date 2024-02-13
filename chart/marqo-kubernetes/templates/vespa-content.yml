@@ -1,0 +1,60 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vespa-content
+spec:
+  replicas: {{ int .Values.vespa.contentServer.replicas }}
+  selector:
+    matchLabels:
+      app: vespa-content
+      name: vespa-internal
+  serviceName: vespa-internal
+  template:
+    metadata:
+      labels:
+        app: vespa-content
+        name: vespa-internal
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: {{ .Values.cloudProviderMatcher }}
+                operator: In
+                values:
+                - vespacontent
+      initContainers:
+      - name: init-sysctl
+        image: busybox
+        imagePullPolicy: Always
+        command: ["sysctl", "-w", "vm.max_map_count=262144"]
+        securityContext:
+          privileged: true
+      containers:
+      - name: vespa-content
+        image: "{{ .Values.vespa.image.registry }}/{{ .Values.vespa.image.repo }}:{{ .Values.vespa.image.tag }}"
+        args: ["services"]
+        imagePullPolicy: Always
+        envFrom:
+          - configMapRef:
+              name: vespa-config
+        securityContext:
+          privileged: true
+          runAsUser: 0
+        volumeMounts:
+          - name: vespa-var-content
+            mountPath: /opt/vespa/var
+        resources:
+          requests:
+            memory: {{ .Values.vespa.contentServer.memory.requests }}
+  volumeClaimTemplates:
+    - metadata:
+        name: vespa-var-content
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: {{ .Values.vespa.contentServer.storage }}

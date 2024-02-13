@@ -1,0 +1,49 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vespa-admin
+spec:
+  replicas: {{ int .Values.vespa.adminServer.replicas }}
+  selector:
+    matchLabels:
+      app: vespa-admin
+      name: vespa-internal
+  serviceName: vespa-internal
+  template:
+    metadata:
+      labels:
+        app: vespa-admin
+        name: vespa-internal
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: {{ .Values.cloudProviderMatcher }}
+                operator: In
+                values:
+                - vespaadmin
+      initContainers:
+      - name: init-sysctl
+        image: busybox
+        imagePullPolicy: Always
+        command: ["sysctl", "-w", "vm.max_map_count=262144"]
+        securityContext:
+          privileged: true
+      containers:
+        - name: vespa-admin
+          image: "{{ .Values.vespa.image.registry }}/{{ .Values.vespa.image.repo }}:{{ .Values.vespa.image.tag }}"
+          args: ["services"]
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: vespa-config
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          resources:
+            requests:
+                memory: {{ .Values.vespa.adminServer.memory.requests }}
