@@ -13,7 +13,7 @@ For more information on Marqo, see the Marqo [official website](https://www.marq
 
 ![Architecture](resources/architecture.png)
 
-This solution uses Vespa as the vector repository. For more information visit [official documentation](https://docs.marqo.ai/).
+For more information visit [official documentation](https://docs.marqo.ai/).
 
 
 ## Getting Started
@@ -33,19 +33,6 @@ To deploy Marqo on managed cloud services like Google Cloud Platform (GCP) and A
 ### Installation on Azure
 
 [Installation-AKS.md](Installation-AKS.md).
-
-## Next Steps
-
-Once Marqo is installed, you can begin integrating it into your applications. See the `test_marqo.py` script for examples of how to interact with Marqo for search operations.
-
-```
-export MARQO_CLUSTER_IP=$(kubectl get svc marqo -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-
-python3 -m venv .venv
-source .venv/bin/activate
-pip install marqo
-python test_marqo.py
-```
 
 
 ## Contributing

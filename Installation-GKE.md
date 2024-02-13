@@ -1,24 +1,6 @@
-![Marqo Logo](resources/marqo.png)
+# Deploying Marqo on Google Kubernetes Engine (GKE)
 
-# Overview
-
-Marqo redefines multimodal AI vector search by offering a powerful, all-in-one engine for both text and image processing, complete with inbuilt vector generation, storage, and retrieval based on tensor search.
-
-It simplifies machine learning deployment and input transformations, ensuring seamless integration into your application. Embrace Marqo to elevate your AI and ML search capabilities with minimal effort and maximum efficiency.
-
-For more information on Marqo, see the Marqo [official website](https://www.marqo.ai/).
-
-
-## Architecture
-
-![Architecture](resources/architecture.png)
-
-This solution uses Vespa as the vector repository. For more information visit [official documentation](https://docs.marqo.ai/).
-
-
-# Deploying Marqo on Google Cloud Platform (GCP)
-
-This guide provides instructions on how to deploy Marqo on GCP using Kubernetes and Helm. The deployment process involves creating a Kubernetes cluster, configuring node pools, and deploying Marqo using a Helm chart.
+This guide provides instructions on how to deploy Marqo on GKE using Kubernetes and Helm. The deployment process involves creating a Kubernetes cluster, configuring node pools, and deploying Marqo using a Helm chart.
 
 ## Prerequisites
 
