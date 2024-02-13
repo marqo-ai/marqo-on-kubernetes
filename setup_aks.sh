@@ -5,17 +5,17 @@
 
 
 # Set the Azure subscription ID or name
-export AZURE_SUBSCRIPTION_ID='19bb31de-af47-4e8b-ba2a-de57bdbd130b'
+export AZURE_SUBSCRIPTION_ID=<Your Azure Subscription ID>
 az account set --subscription $AZURE_SUBSCRIPTION_ID
 
-export APP_INSTANCE_NAME=marqo1
+export APP_INSTANCE_NAME=<Your App Instance Name>
 
-export CLUSTER=marqo
+export CLUSTER=<Your Cluster Name>
 # Set preferred location
-export LOCATION=eastus
+export LOCATION=<Your preferred location i.e useast>
 
 # Create a resource group if it doesn't already exist
-export RESOURCE_GROUP='marqo-test'
+export RESOURCE_GROUP=<Your Resource Group Name>
 az group create --name $RESOURCE_GROUP --location $LOCATION
 
 # Create AKS cluster
