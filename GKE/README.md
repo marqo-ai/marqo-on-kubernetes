@@ -1,3 +1,5 @@
+![Marqo Logo](../resources/marqo.png)
+
 # Deploying Marqo on Google Kubernetes Engine (GKE)
 
 This guide provides instructions on how to deploy Marqo on GKE using Kubernetes and Helm. The deployment process involves creating a Kubernetes cluster, configuring node pools, and deploying Marqo using a Helm chart.
