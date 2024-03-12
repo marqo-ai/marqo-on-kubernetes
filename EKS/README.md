@@ -1,4 +1,4 @@
-![Marqo Logo](resources/marqo.png)
+![Marqo Logo](../resources/marqo.png)
 
 # Deploying Marqo on Amazon Elastic Kubernetes Service (EKS)
 
