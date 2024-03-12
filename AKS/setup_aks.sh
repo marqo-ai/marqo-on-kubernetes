@@ -61,6 +61,8 @@ if [ "$INSTALL_GPU" = true ]; then
     && helm repo update
     helm install gpu-operator nvidia/gpu-operator \
         -n gpu-operator --create-namespace \
+        --set driver.enabled=false \
+        --set toolkit.enabled=false \
         --set operator.runtimeClass=nvidia-container-runtime
 fi
 
