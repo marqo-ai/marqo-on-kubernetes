@@ -4,13 +4,13 @@
 # Make sure your AWS credentials are set up
 
 # Set AWS Region and Account Details
-export AWS_REGION='us-east-1' # Equivalent to eastus in Azure
+export AWS_REGION=<Your AWS Region>
 export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 
 # Define your application and cluster names
-export APP_INSTANCE_NAME=marqo1
-export CLUSTER_NAME=eks-ali4
-export KEY_NAME=ali
+export APP_INSTANCE_NAME=<Your App Instance Name>
+export CLUSTER_NAME=<Your Cluster Name>
+export KEY_NAME=<Your Key Name>
 # INSTALL_GPU is an environment variable that indicates whether to install GPU support
 INSTALL_GPU=true
 if [ "$INSTALL_GPU" = true ]; then
@@ -18,17 +18,18 @@ if [ "$INSTALL_GPU" = true ]; then
     # Find the latest EKS Ubuntu AMIs here: https://cloud-images.ubuntu.com/aws-eks/
     export UBUNTU_AMI_ID=ami-0d678772ad0cdc8d7
 fi
+
+AVAILABILITY_ZONES=  <Your Availability Zones> # e.g. "us-east-1a,us-east-1b,us-east-1c" 
+
 # Create an EKS cluster using eksctl
-# Note: eksctl simplifies the process of creating EKS clusters and node groups
-
-AVAILABILITY_ZONES="us-east-1a,us-east-1b,us-east-1c"
-
 eksctl create cluster --name $CLUSTER_NAME --region $AWS_REGION --zones $AVAILABILITY_ZONES
 
+# Update kubeconfig to use the new EKS cluster
 aws eks --region $AWS_REGION update-kubeconfig --name $CLUSTER_NAME
 
+# Associate IAM OIDC provider
 eksctl utils associate-iam-oidc-provider --region=$AWS_REGION --cluster=$CLUSTER_NAME --approve
-
+# Create an IAM policy for the EBS CSI driver
 eksctl create iamserviceaccount \
     --name ebs-csi-controller-sa \
     --namespace kube-system \
@@ -37,12 +38,13 @@ eksctl create iamserviceaccount \
     --role-only \
     --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
     --approve
-
+# Install the EBS CSI driver
 eksctl create addon --name aws-ebs-csi-driver --cluster $CLUSTER_NAME --service-account-role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/AmazonEKS_EBS_CSI_DriverRole --force
-
+# Update the EBS CSI driver to the latest version
 eksctl update addon --name aws-ebs-csi-driver --version v1.11.4-eksbuild.1 --cluster $CLUSTER_NAME \
   --service-account-role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/AmazonEKS_EBS_CSI_DriverRole --force
 
+# Create Managed Node Groups
 eksctl create nodegroup \
     --cluster $CLUSTER_NAME \
     --region $AWS_REGION \
@@ -109,7 +111,7 @@ fi
 
 
 if [ "$INSTALL_GPU" = true ]; then
-
+    # replace the eks_gpu_node.yaml file with the correct values
     sed -e "s/{{CLUSTER_NAME}}/$CLUSTER_NAME/g" \
         -e "s/{{KEY_NAME}}/$KEY_NAME/g" \
         -e "s/{{REGION_NAME}}/$AWS_REGION/g" \
