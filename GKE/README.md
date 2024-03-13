@@ -1,3 +1,5 @@
+![Marqo Logo](../resources/marqo.png)
+
 # Deploying Marqo on Google Kubernetes Engine (GKE)
 
 This guide provides instructions on how to deploy Marqo on GKE using Kubernetes and Helm. The deployment process involves creating a Kubernetes cluster, configuring node pools, and deploying Marqo using a Helm chart.
@@ -41,11 +43,12 @@ Before executing the setup.sh script, ensure your GCP quotas have capacity for t
    - **APP_INSTANCE_NAME**: Name your application instance.
    - **CLUSTER**: Define your Kubernetes cluster name.
    - **REGION** and **ZONE**: Specify your preferred GCP region and zone.
+   - **INSTALL_GPU:** If deploying with GPU support, set INSTALL_GPU=true otherwise false.
 
 
    Run the script:
    ```bash
-   ./setup_gke.sh
+   ./GKE/setup_gke.sh
    ```
 
    This script performs the following actions:
@@ -68,7 +71,7 @@ Before executing the setup.sh script, ensure your GCP quotas have capacity for t
 4. **Test Marqo endpoint:**
 
 ```
-export MARQO_CLUSTER_IP=$(kubectl get svc marqo -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+export MARQO_CLUSTER_IP=$(kubectl get svc marqo -o jsonpath='{.status.loadBalancer.ingres[0].ip}')
 
 python3 -m venv .venv
 source .venv/bin/activate
@@ -79,7 +82,6 @@ python test_marqo.py
 ## Additional Configuration
 
 - **GPU Nodes:** If you plan to use GPU nodes, uncomment the relevant section in the `setup.sh` script before running it. This will create a node pool with GPU capabilities.
-Also in values.yaml , set gpu_enabled to true
 
 - **Custom Configurations:** Modify the Helm chart values or the `setup.sh` script as needed for custom configurations.
 

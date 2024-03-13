@@ -108,7 +108,7 @@ spec:
             - "privileged"
             - "p=8882:8882"
             - "add-host=host.docker.internal:host-gateway"
-            {{ if .Values.marqo.gpu_enabled }}
+            {{ if .Values.gpu_enabled }}
             - "gpus all"
             {{ end }}
           imagePullPolicy: Always
@@ -120,12 +120,12 @@ spec:
             runAsUser: 0
           resources:
             requests:
-              {{ if .Values.marqo.gpu_enabled }}
+              {{ if .Values.gpu_enabled }}
               nvidia.com/gpu: 1
               {{ end }}
               memory: {{ .Values.marqo.memory }}
               cpu: 1
-            {{ if .Values.marqo.gpu_enabled }}
+            {{ if .Values.gpu_enabled }}
             limits:
               nvidia.com/gpu: 1
             {{ end }}

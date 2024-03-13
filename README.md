@@ -39,11 +39,15 @@ To deploy Marqo on managed cloud services like Google Cloud Platform (GCP) or Az
 
 ### Installation on Google Cloud
 
-[Installation-GKE.md](GKE/Installation-GKE.md).
+[Installation on GKE](GKE/README.md).
 
 ### Installation on Azure
 
-[Installation-AKS.md](AKS/Installation-AKS.md).
+[Installation on AKS](AKS/README.md).
+
+### Installation on AWS
+
+[Installation on EKS](EKS/README.md).
 
 
 ## Contributing

@@ -1,0 +1,25 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: {{CLUSTER_NAME}}
+  region: {{REGION_NAME}}
+
+managedNodeGroups:
+  - name: marqonodes
+    instanceType: g4dn.xlarge
+    ami: {{UBUNTU_AMI_ID}}
+    amiFamily: Ubuntu2004
+    minSize: 1
+    desiredCapacity: 1
+    maxSize: 1
+    volumeSize: 100
+    labels:
+      gpu: enabled
+    ssh:
+      allow: true
+      publicKeyPath: {{KEY_NAME}}
+    overrideBootstrapCommand: |
+      #!/bin/bash
+      source /var/lib/cloud/scripts/eksctl/bootstrap.helper.sh
+      sudo /etc/eks/bootstrap.sh {{CLUSTER_NAME}} --container-runtime containerd --kubelet-extra-args "--node-labels=workload=gpu,hardware=nvidia,instance=g4dn"
