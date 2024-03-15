@@ -71,7 +71,7 @@ Before executing the setup.sh script, ensure your GCP quotas have capacity for t
 4. **Test Marqo endpoint:**
 
 ```
-export MARQO_CLUSTER_IP=$(kubectl get svc marqo -o jsonpath='{.status.loadBalancer.ingres[0].ip}')
+export MARQO_CLUSTER_IP=$(kubectl get svc marqo -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 
 python3 -m venv .venv
 source .venv/bin/activate

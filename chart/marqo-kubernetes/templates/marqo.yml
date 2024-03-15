@@ -130,6 +130,10 @@ spec:
               nvidia.com/gpu: 1
             {{ end }}
           env:
+          {{ if .Values.override_cuda_path }}
+          - name: MARQO_CUDA_PATH
+            value: /usr/local/nvidia
+          {{ end }}
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64
   volumeClaimTemplates:
