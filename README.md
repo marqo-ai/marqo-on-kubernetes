@@ -33,7 +33,7 @@ To deploy Marqo on managed cloud services like Google Cloud Platform (GCP) or Az
 
 ### Requirements
 
-- A GCP or Azure account.
+- A GCP/Azure or AWS account.
 - Basic understanding of Kubernetes and Helm.
 - `kubectl` and `helm` installed on your local machine.
 
