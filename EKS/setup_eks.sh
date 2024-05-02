@@ -12,7 +12,7 @@ export APP_INSTANCE_NAME=<Your App Instance Name>
 export CLUSTER_NAME=<Your Cluster Name>
 export KEY_NAME=<Your Key Name>
 # INSTALL_GPU is an environment variable that indicates whether to install GPU support
-INSTALL_GPU=true
+INSTALL_GPU=false
 if [ "$INSTALL_GPU" = true ]; then
     # The AMI ID here is for us-east-1. You may need to change this for other regions
     # Find the latest EKS Ubuntu AMIs here: https://cloud-images.ubuntu.com/aws-eks/
@@ -41,7 +41,7 @@ eksctl create iamserviceaccount \
 # Install the EBS CSI driver
 eksctl create addon --name aws-ebs-csi-driver --cluster $CLUSTER_NAME --service-account-role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/AmazonEKS_EBS_CSI_DriverRole --force
 # Update the EBS CSI driver to the latest version
-eksctl update addon --name aws-ebs-csi-driver --version v1.11.4-eksbuild.1 --cluster $CLUSTER_NAME \
+eksctl update addon --name aws-ebs-csi-driver --version v1.30.0-eksbuild.1 --cluster $CLUSTER_NAME \
   --service-account-role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/AmazonEKS_EBS_CSI_DriverRole --force
 
 # Create Managed Node Groups
@@ -102,7 +102,7 @@ if [ "$INSTALL_GPU" = false ]; then
         --cluster $CLUSTER_NAME \
         --region $AWS_REGION \
         --name marqonodes \
-        --node-type t3.large \
+        --node-type t3.xlarge \
         --nodes 1 \
         --ssh-access \
         --ssh-public-key $KEY_NAME \
@@ -136,7 +136,7 @@ fi
 
 helm template "${APP_INSTANCE_NAME}" chart/marqo-kubernetes --set cloudProviderMatcher=alpha.eksctl.io/nodegroup-name,gpu_enabled=$INSTALL_GPU > "${APP_INSTANCE_NAME}_manifest.yaml"
 kubectl apply -f "${APP_INSTANCE_NAME}_manifest.yaml" 
-kubectl get pods --all-namespaces -w
+kubectl get pods --all-namespaces 
 
 rm -f "${APP_INSTANCE_NAME}_manifest.yaml"
 
