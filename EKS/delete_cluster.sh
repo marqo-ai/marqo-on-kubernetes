@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Set AWS Region and Cluster Name
-AWS_REGION=us-east-1
-CLUSTER_NAME=ali3
+AWS_REGION=<Your AWS Region>
+CLUSTER_NAME=<Your EKS Cluster Name>
 
 # Set the AWS Account ID
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
