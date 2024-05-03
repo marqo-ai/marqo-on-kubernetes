@@ -78,10 +78,10 @@ For GPU node, we recommend using Ubuntu AMIs. You can  king list of AMIs for AWS
 
 ## Cleanup
 
-To delete the EKS cluster and associated resources, run:
+To delete the EKS cluster and associated resources, run
 
 ```bash
-eksctl delete cluster --name $CLUSTER_NAME --region $AWS_REGION
+./EKS/delete_cluster.sh
 ```
 
 Ensure to replace `$CLUSTER_NAME` and `$AWS_REGION` with your actual cluster name and AWS region.
