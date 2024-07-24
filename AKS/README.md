@@ -14,7 +14,7 @@ This guide provides instructions on how to deploy Marqo on Azure AKS using Kuber
 ## Notes
 Before executing the setup script, ensure your Azure subscription has enough capacity for the following requirements:
 
-- vCPUs: Verify the quota for vCPUs based on the node size and count you plan to use. Default setup requires 9 vCPU of type Standard_D2s_v3.
+- vCPUs: Verify the quota for vCPUs based on the node size and count you plan to use. Default setup requires 18 vCPU of type Standard_D2s_v3.
 - Persistent Disk SSD: At least 240 GB required; adjust based on your setup.
 - If using GPU nodes, ensure your subscription supports the desired Azure VM sizes with GPU capabilities, recommended GPU instance is Standard_NC4as_T4_v3.
 
