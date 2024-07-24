@@ -2,7 +2,7 @@ marqo:
   image:
     registry: docker.io
     repo: marqoai/marqo
-    tag: 2.2.0
+    tag: 2.10
   replicas: 1
   memory: "8G"
   storage: "20Gi"
