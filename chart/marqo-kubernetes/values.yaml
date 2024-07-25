@@ -12,7 +12,7 @@ vespa:
   image:
     registry: docker.io
     repo: vespaengine/vespa
-    tag: 8.279.6
+    tag: 8.367.14
   configServer:
     replicas: 3
     storage:

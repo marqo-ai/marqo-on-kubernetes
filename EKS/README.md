@@ -10,6 +10,7 @@ This guide outlines the steps to deploy Marqo on Amazon EKS using Kubernetes and
 - AWS CLI installed and configured with appropriate credentials.
 - Kubernetes command-line tool (`kubectl`) installed.
 - Helm installed.
+- eksctl installed.
 
 ## Notes
 Ensure your AWS account has enough resources for the following requirements before executing the setup script:
