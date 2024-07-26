@@ -9,3 +9,4 @@ data:
     {{- if $i }},{{- end -}}
     vespa-configserver-{{ $i }}.vespa-internal.{{ $relnamespace }}.svc.cluster.local
   {{- end }}"
+  VESPA_SKIP_UPGRADE_CHECK: "TRUE"
