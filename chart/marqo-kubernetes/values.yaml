@@ -2,7 +2,7 @@ marqo:
   image:
     registry: docker.io
     repo: marqoai/marqo
-    tag: 2.2.0
+    tag: 2.10.1
   replicas: 1
   memory: "8G"
   storage: "20Gi"
@@ -12,7 +12,7 @@ vespa:
   image:
     registry: docker.io
     repo: vespaengine/vespa
-    tag: 8.279.6
+    tag: 8.367.14
   configServer:
     replicas: 3
     storage:

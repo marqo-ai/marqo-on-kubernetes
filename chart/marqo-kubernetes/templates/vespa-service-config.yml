@@ -13,3 +13,6 @@ spec:
   - name: api
     port: 19071
     targetPort: 19071
+  - name: zookeeper
+    port: 2181
+    targetPort: 2181
