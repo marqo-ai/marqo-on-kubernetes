@@ -25,8 +25,8 @@ Before executing the setup.sh script, ensure your GCP quotas have capacity for t
    Ensure you have the Marqo on GCP repository cloned to your local machine. This repository contains the necessary Helm chart and the `setup.sh` script.
 
    ```bash
-   git clone https://github.com/marqo-ai/marqo-on-gcp.git
-   cd marqo-on-gcp
+   git clone git@github.com:marqo-ai/marqo-on-kubernetes.git
+   cd marqo-on-kubernetes
    ```
 
 2. **Run the Setup Script:**
