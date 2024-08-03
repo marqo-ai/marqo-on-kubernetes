@@ -8,6 +8,7 @@ This guide provides instructions on how to deploy Marqo on GKE using Kubernetes 
 
 - A Google Cloud account and a project.
 - Google Cloud SDK (`gcloud`) installed and configured.
+- Once gcloud is installed, add the gke-gcloud-auth-plugin e.g. `> gcloud components install gke-gcloud-auth-plugin`
 - Kubernetes command-line tool (`kubectl`) installed.
 - Helm installed.
 
