@@ -13,6 +13,7 @@ export ZONE=<Your preferred zone i.e us-central1-a>
 INSTALL_GPU=false
 
 gcloud services enable containerregistry.googleapis.com
+gcloud services enable container.googleapis.com
 gcloud config set project $PROJECT_ID
 gcloud config set compute/region $REGION
 gcloud config set compute/zone $ZONE
