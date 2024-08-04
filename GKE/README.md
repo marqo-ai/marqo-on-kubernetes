@@ -8,12 +8,12 @@ This guide provides instructions on how to deploy Marqo on GKE using Kubernetes 
 
 - A Google Cloud account and a project.
 - Google Cloud SDK (`gcloud`) installed and configured.
-- The gcloud plugin gke-gcloud-auth-plugin installed: ```gcloud components install gke-gcloud-auth-plugin```
+- The gcloud plugin gke-gcloud-auth-plugin installed with: ```gcloud components install gke-gcloud-auth-plugin```
 - Kubernetes command-line tool (`kubectl`) installed.
 - Helm installed.
 
 ## Notes
-Before executing the setup.sh script, ensure your GCP quotas have capacity for the following requirements:
+Before executing the setup_gke.sh script, ensure your GCP quotas have capacity for the following requirements:
 
 - vCPUs (18): Verify the quota for 18 vCPUs.
 - Persistent Disk SSD: At least 240 GB required; adjust based on your setup.
