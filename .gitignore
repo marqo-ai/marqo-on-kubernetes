@@ -148,5 +148,6 @@ dump.rdb
 
 # Generated helm
 marqo-helm_manifest.yaml
-*.yaml
 
+out/
+vars.env
