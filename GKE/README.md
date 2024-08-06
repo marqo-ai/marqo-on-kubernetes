@@ -95,7 +95,7 @@ To run a simple test
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install marqo
+pip install -r test/requirements.txt
 python test_marqo.py
 ```
 
