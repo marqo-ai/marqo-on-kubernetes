@@ -5,7 +5,8 @@ set -e
 # get the dir of this script and set a path to put files generated (and then read) during deploy/destroy
 THIS_FILES_DIR_PATH="$(dirname "$(readlink -f "$0")")"
 OUT_DIR="$THIS_FILES_DIR_PATH/../out"
-CLUSTER_IP_FILE_PATH="${OUT_DIR}/marqo_cluster_ip_gke.env"
+CLUSTER_IP_FILE_PATH="${OUT_DIR}/vars.env"
+
 
 # source the envars
 ENVARS_FILE_PATH="${THIS_FILES_DIR_PATH}/vars.env"
@@ -77,8 +78,8 @@ deploy_marqo_k8s() {
   kubectl apply -f "$manifest_file_path"
 
   MARQO_CLUSTER_IP=$(kubectl get svc marqo -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-  echo "MARQO_CLUSTER_IP=$MARQO_CLUSTER_IP" > "$CLUSTER_IP_FILE_PATH"
-  export "$MARQO_CLUSTER_IP"
+  echo "MARQO_CLUSTER_IP=${MARQO_CLUSTER_IP}" > "$CLUSTER_IP_FILE_PATH"
+  export MARQO_CLUSTER_IP="$MARQO_CLUSTER_IP"
 
   echo "marqo cluster ${APP_INSTANCE_NAME} deployed to GKE"
   date

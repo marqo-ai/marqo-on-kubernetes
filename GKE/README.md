@@ -31,9 +31,9 @@ Before executing the setup_gke.sh script, ensure your GCP quotas have capacity f
    ```
    
 2. **Set Envars:**</br>
-   Copy GKE/vars_template.env to the same dir and name it vars.env e.g.
+   Copy GKE/vars.env.template to the same dir and name it vars.env e.g.
    ```bash
-   cp ./GKE/vars_template.env ./GKE/vars.env
+   cp ./GKE/vars.env.template ./GKE/vars.env
    ```
    Edit vars.env and set the variables with real values to match your GCP environment:
    - **PROJECT_ID**: Set to your GCP project ID.
@@ -81,13 +81,15 @@ Execution of `setup_gke.sh deploy` includes the following automated steps:
 NOTE: the following test/s presume that MARQO_CLUSTER_IP has been exported as an envar 
 and contains the IP address of the marqo cluster that was deployed. 
 This occurs during deployment but the envar won't survive exiting the session the cluster was deployed in.
-MARQO_CLUSTER_IP is therefore also written to `out/marqo_cluster_ip_gke.env` 
+MARQO_CLUSTER_IP is therefore also written to `out/vars.env` 
 so if necessary you can re-export it to the environment with
 ```bash
   set -a
-  source out/marqo_cluster_ip.env
+  source out/vars.env
   set +a
 ```
+for python, you can use the library dotenv, either dotenv_values to return all the values as a dict, or dotenv_load 
+to export to the environment and then read them in using os.environ["key_name"]
 
 To run a simple test
 ```bash

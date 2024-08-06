@@ -151,3 +151,4 @@ marqo-helm_manifest.yaml
 
 out/
 vars.env
+*.DS_Store
