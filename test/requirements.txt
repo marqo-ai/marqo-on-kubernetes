@@ -1,2 +1,2 @@
 marqo
-dotenv
+python-dotenv
