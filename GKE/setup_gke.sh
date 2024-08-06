@@ -5,6 +5,7 @@ set -e
 # get the dir of this script and set a path to put files generated (and then read) during deploy/destroy
 THIS_FILES_DIR_PATH="$(dirname "$(readlink -f "$0")")"
 OUT_DIR="$THIS_FILES_DIR_PATH/../out"
+mkdir -p $OUT_DIR
 CLUSTER_IP_FILE_PATH="${OUT_DIR}/vars.env"
 
 
@@ -26,16 +27,43 @@ handle_error() {
 trap 'handle_error $LINENO' ERR
 
 
-destroy_marqo_k8s() {
-  echo "Destroying marqo cluster ${APP_INSTANCE_NAME} deployed on GKE"
-  gcloud container clusters delete "$CLUSTER" --quiet
+export_marqo_cluster_ip() {
+  # wait for the cluster IP to become available so we can export it
+  RETRIES=10
+  WAIT_TIME=60
+  MAX_WAIT_TIME=$((RETRIES * WAIT_TIME))
+  MARQO_CLUSTER_IP=""
+  echo "Waiting for cluster IP to become available so it can be exported..."
+  while (( RETRIES > 0 ))
+  do
+      MARQO_CLUSTER_IP=$(kubectl get svc marqo -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+      if [[ $MARQO_CLUSTER_IP != "" ]]; then
+        echo "Cluster IP available"
+        break
+      fi
+      echo "Cluster IP not available yet. sleeping for ${WAIT_TIME}s"
+      sleep $WAIT_TIME
+      RETRIES=$((RETRIES - 1))
+  done
+
+  if [[ $MARQO_CLUSTER_IP != "" ]]; then
+    echo "MARQO_CLUSTER_IP=${MARQO_CLUSTER_IP}" > "$CLUSTER_IP_FILE_PATH"
+    export MARQO_CLUSTER_IP="$MARQO_CLUSTER_IP"
+    echo "Cluster IP exported"
+  else
+    echo "MARQO cluster IP not available after ${MAX_WAIT_TIME}s. Giving up."
+    echo "To obtain the cluster IP, wait some more and then run this script with the ip arg i.e. > setup_gke.sh ip"
+    echo "Rinse and repeat until you see a message ""'"Cluster IP exported"'"
+    echo "To manually obtain and export the cluster ip, run the following commands:"
+    echo 'export MARQO_CLUSTER_IP=$(kubectl get svc marqo -o jsonpath='"'"'{.status.loadBalancer.ingress[0].ip}'"'"')'
+    echo 'MARQO_CLUSTER_IP=$MARQO_CLUSTER_IP'" > $CLUSTER_IP_FILE_PATH"
+    echo ""
+  fi
 }
 
 
 deploy_marqo_k8s() {
   echo "Deploying marqo cluster ${APP_INSTANCE_NAME} to GKE"
-
-  mkdir -p $OUT_DIR
 
   # always execute from the top level dir
   cd "${THIS_FILES_DIR_PATH}/.."
@@ -77,12 +105,16 @@ deploy_marqo_k8s() {
 
   kubectl apply -f "$manifest_file_path"
 
-  MARQO_CLUSTER_IP=$(kubectl get svc marqo -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-  echo "MARQO_CLUSTER_IP=${MARQO_CLUSTER_IP}" > "$CLUSTER_IP_FILE_PATH"
-  export MARQO_CLUSTER_IP="$MARQO_CLUSTER_IP"
+  export_marqo_cluster_ip
 
   echo "marqo cluster ${APP_INSTANCE_NAME} deployed to GKE"
   date
+}
+
+
+destroy_marqo_k8s() {
+  echo "Destroying marqo cluster ${APP_INSTANCE_NAME} deployed on GKE"
+  gcloud container clusters delete "$CLUSTER" --quiet
 }
 
 
@@ -94,6 +126,8 @@ if (($# == 1)); then
     deploy_marqo_k8s
   elif [[ "$action_type" == "DESTROY" ]]; then
     destroy_marqo_k8s
+  elif [[ "$action_type" == "IP" ]]; then
+    export_marqo_cluster_ip
   else
     echo "Invalid input args. Options are: deploy or destroy."
     exit 1
