@@ -148,3 +148,7 @@ dump.rdb
 
 # Generated helm
 marqo-helm_manifest.yaml
+
+out/
+vars.env
+*.DS_Store
