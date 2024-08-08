@@ -72,8 +72,8 @@ Before executing the setup script, ensure your Azure subscription has enough cap
    ```
    python3 -m venv .venv
    source .venv/bin/activate
-   pip install marqo
-   python test_marqo.py
+   pip install -r test/requirements.txt
+   python test/test_marqo.py
    ```
 
 ## Additional Configuration
