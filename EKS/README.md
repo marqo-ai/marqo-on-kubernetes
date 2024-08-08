@@ -67,8 +67,8 @@ export MARQO_CLUSTER_IP=$(kubectl get svc marqo -o jsonpath='{.status.loadBalanc
 
 python3 -m venv .venv
 source .venv/bin/activate
-pip install marqo
-python test_marqo.py
+pip install -r test/requirements.txt
+python test/test_marqo.py
 ```
 
 ## Additional Configuration

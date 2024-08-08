@@ -96,7 +96,7 @@ To run a simple test
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r test/requirements.txt
-python test_marqo.py
+python test/test_marqo.py
 ```
 
 ## Additional Configuration
